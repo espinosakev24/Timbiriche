@@ -55,10 +55,8 @@ var fillPointMap = () => {
         	listObjs.push({
                 x: x,
                 y: y,
-                right: (x + 1) > gridSize - 1 ? false: true,
-                up: (y - 1) === - 1 ? false: true,
-                left: (x - 1) === -1 ? false : true,
-                down: (y + 1) > gridSize - 1 ? false: true
+                right: false,
+                down: false
             })
         }
          arrayOfPointObjs.push(listObjs);
@@ -66,8 +64,6 @@ var fillPointMap = () => {
     }
 }
 function create() {
-    console.log(arrayOfPointObjs, "arrayOfPointObjs")
-    console.log(gridSize);
     fillPointMap();
     graphics = this.add.graphics(
         {
@@ -80,9 +76,31 @@ function create() {
 
     this.input.on('pointerdown', function (pointer) {
         if (isLineInsideGrid(line)) {
-            lines.push(line);
+            let x1 = line.x1;
+            let x2 = line.x2;
+            let y1 = line.y1;
+            let y2 = line.y2;
+
+            let gridX1 = (x1 - xOffset) / cellSize;
+            let gridY1 = (y1 - yOffset) / cellSize;
+            let gridX2 = (x2 - xOffset) / cellSize;
+            let gridy2 = (y2 - yOffset) / cellSize;
+
+            for (let c = 0; c < gridSize; c++) {
+                for (let r = 0; r < gridSize; r++) {
+                    let point = arrayOfPointObjs[c][r];
+
+                    if (point.x === gridX1 && point.y === gridY1) {
+                        if (gridX2 > gridX1) {
+                            point.right = true;
+                        } else if (gridy2 > gridY1) {
+                            point.down = true;
+                        }
+                    }
+                }
+            }
+
         }
-    	console.log(lines);
     }, this);
 
 }
@@ -96,23 +114,16 @@ function update() {
 
     line = getMouseLine(pointer);
 
-    drawMouseLine(line);
+    drawLine(line, 4, lineHoverColor.color);
 
     graphics.lineStyle(4, lineColor.color);
+
     for (let c = 0; c < gridSize; c++) {
         for (let r = 0; r < gridSize; r++) {
             let point = arrayOfPointObjs[c][r];
-            
-            if (point.right) {
 
-            	let newLine = Phaser.Geom.Line (
-	            	point.x * cellSize + xOffset,
-	            	point.y * cellSize + yOffset,
-	            	(point.x + 1) * cellSize + xOffset,
-	            	point.y * cellSize + yOffset
-            	);
-            	// drawMouseLine(newLine);
-            }
+            drawGridLines(point);
+
             drawCircle(xOffset + point.x * cellSize, yOffset + point.y * cellSize);
             // graphics.strokeLineShape(lines[c])
         	// graphics.strokeLineShape(lines[c]);
@@ -120,12 +131,49 @@ function update() {
     }
 }
 
-function drawMouseLine(line) {
+function drawGridLines(point){
+
+    let line;
+    let x1, x2, y1, y2;
+
+    if (point.right) {
+
+        x1 = point.x * cellSize + xOffset;
+        y1 = point.y * cellSize + yOffset;
+        x2 = (point.x + 1) * cellSize + xOffset;
+        y2 = point.y * cellSize + yOffset;
+
+        line = new Phaser.Geom.Line(
+            x1, y1, x2, y2
+        );
+        drawLine(line, 2, lineColor.color);
+    }
+
+    if (point.down) {
+        x1 = point.x * cellSize + xOffset;
+        y1 = point.y * cellSize + yOffset;
+        x2 = point.x * cellSize + xOffset;
+        y2 = (point.y + 1) * cellSize + yOffset;
+        
+        line = new Phaser.Geom.Line(
+            x1, y1, x2, y2
+        );
+
+        drawLine(line, 2, lineColor.color);
+    }
+
+    if (!x1 || !x2 || !y1 || !y2){
+        return;
+    }
+
+}
+
+function drawLine(line, tickness, color) {
     if (!isLineInsideGrid(line)) {
         return;
     }
 
-    graphics.lineStyle(4, lineHoverColor.color);
+    graphics.lineStyle(tickness, color);
 
     graphics.strokeLineShape(line);
 }
