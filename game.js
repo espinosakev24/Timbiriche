@@ -22,7 +22,53 @@ var pointColor = Phaser.Display.Color.RGBStringToColor('rgb(239, 61, 89)');
 var lines = [];
 var line;
 
+// var point = {
+//     x: x,
+//     y: y,
+//     up: false,
+//     rigth: false,
+//     left: false,
+//     down: false,
+// }
+
+var arrayOfPointObjs = [];
+
+
+// var fillPointMap = () => {
+//     for(let x = 0; x < gridSize; x++) {
+//         for(let y = 0; y < gridSize; y++) {
+//             arrayOfPointObjs.push([{
+//                 x: x,
+//                 y: y,
+//                 right: true,
+//                 up: false,
+//                 left: false,
+//                 down: false
+//             }]);
+//         }
+//     }
+// }
+let listObjs = [];
+var fillPointMap = () => {
+    for(let x = 0; x < gridSize; x++) {
+        for(let y = 0; y < gridSize; y++) {
+        	listObjs.push({
+                x: x,
+                y: y,
+                right: (x + 1) > gridSize - 1 ? false: true,
+                up: (y - 1) === - 1 ? false: true,
+                left: (x - 1) === -1 ? false : true,
+                down: (y + 1) > gridSize - 1 ? false: true
+            })
+        }
+         arrayOfPointObjs.push(listObjs);
+         listObjs = [];
+    }
+}
 function create() {
+    console.log(arrayOfPointObjs, "arrayOfPointObjs")
+    console.log(gridSize);
+    fillPointMap();
     graphics = this.add.graphics(
         {
             fillStyle: { width: 2, color: pointColor.color },
@@ -36,6 +82,7 @@ function create() {
         if (isLineInsideGrid(line)) {
             lines.push(line);
         }
+    	console.log(lines);
     }, this);
 
 }
@@ -51,14 +98,25 @@ function update() {
 
     drawMouseLine(line);
 
+    graphics.lineStyle(4, lineColor.color);
     for (let c = 0; c < gridSize; c++) {
         for (let r = 0; r < gridSize; r++) {
-            drawCircle(xOffset + c * cellSize, yOffset + r * cellSize);
+            let point = arrayOfPointObjs[c][r];
+            
+            if (point.right) {
+
+            	let newLine = Phaser.Geom.Line (
+	            	point.x * cellSize + xOffset,
+	            	point.y * cellSize + yOffset,
+	            	(point.x + 1) * cellSize + xOffset,
+	            	point.y * cellSize + yOffset
+            	);
+            	// drawMouseLine(newLine);
+            }
+            drawCircle(xOffset + point.x * cellSize, yOffset + point.y * cellSize);
+            // graphics.strokeLineShape(lines[c])
+        	// graphics.strokeLineShape(lines[c]);
         }
-    }
-    graphics.lineStyle(4, lineColor.color);
-    for (let l = 0; l < lines.length; l++) {
-        graphics.strokeLineShape(lines[l]);
     }
 }
 
