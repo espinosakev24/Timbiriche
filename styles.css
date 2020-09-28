@@ -1,0 +1,16 @@
+body {
+    background-color: #55b9f3;
+}
+
+/* #phaserGame {
+    border-radius: 50px;
+    background: #55b9f3;
+    box-shadow:  20px 20px 60px #489dcf, 
+             -20px -20px 60px #62d5ff;
+} */
+.gameContainer {
+    border-radius: 90px;
+background: #55b9f3;
+box-shadow:  20px 20px 40px #489dcf, 
+             -20px -20px 40px #62d5ff;
+}
